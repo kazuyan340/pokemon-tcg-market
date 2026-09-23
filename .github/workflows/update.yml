@@ -87,6 +87,9 @@ jobs:
       - name: Fetch prices from Card Shop WaiTV
         run: python scraper_prices_waitv.py
 
+      - name: Fetch prices from Manzokuya
+        run: python scraper_prices_manzokuya.py
+
       - name: Fetch old-back ("旧裏") category stock/prices from CardRush Pokemon
         run: python scraper_kyuura.py
 

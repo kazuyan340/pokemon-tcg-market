@@ -5,7 +5,7 @@ const FAVORITES_KEY = "pokemonTcgFavorites";
 // trends.html/movers-up.html/movers-down.htmlで共有する、値動き系ページの
 // サイトタブ・カードグリッド描画ロジック。「全体」は各サイト最安値を単純平均した
 // 「相場」の日次推移が基準。
-const TREND_SITES = ["全体", "駿河屋", "カードラボ", "竜のしっぽ", "わいTV", "カードラッシュ"];
+const TREND_SITES = ["全体", "駿河屋", "カードラボ", "竜のしっぽ", "わいTV", "カードラッシュ", "まんぞく屋"];
 
 function bySite(items, site) {
   return (items || []).filter((item) => item.site === site);
@@ -271,6 +271,7 @@ const SITE_COLOR_MAP = {
   "竜のしっぽ": "#2fa84f",
   "わいTV": "#c9781f",
   "カードラッシュ": "#c0392b",
+  "まんぞく屋": "#149c9c",
 };
 const FALLBACK_SITE_COLORS = ["#a83fd1", "#d4a72c", "#1d9e9e"];
 const fallbackSiteColorAssignments = {};
@@ -313,6 +314,14 @@ function ryuunoshippoSearchUrl(cardNum) {
 // わいTVはカード番号(pack_code + 型番)そのままでサイト内検索がヒットすることを確認済み。
 function waitvSearchUrl(cardNum) {
   return `https://www.cardshop-waitv.net/product-list/5?keyword=${encodeURIComponent(cardNum)}`;
+}
+
+// まんぞく屋(EC-CUBE)の検索パラメータ名は"search"(サイト内フォームで確認済み、
+// "keyword"ではない)。ポケモンカテゴリ(category_id=999)を併せて指定することで
+// 他ジャンルの商品が大量に混ざるのを防ぐ。カード番号(pack_code + 型番)そのままで
+// 目的のカードが検索結果に現れることを確認済み。
+function manzokuyaSearchUrl(cardNum) {
+  return `https://shopmanzokuya.com/products/list?category_id=999&search=${encodeURIComponent(cardNum)}`;
 }
 
 // カードラッシュはcard_prints.cardrush_urlに商品詳細ページのURLがそのまま入っている
@@ -387,6 +396,7 @@ const SITE_LINK_BUILDERS = {
   "カードラボ": { url: (cardNum) => cardLaboSearchUrl(cardNum), pr: false },
   "竜のしっぽ": { url: (cardNum) => ryuunoshippoSearchUrl(cardNum), pr: false },
   "わいTV": { url: (cardNum) => waitvSearchUrl(cardNum), pr: false },
+  "まんぞく屋": { url: (cardNum) => manzokuyaSearchUrl(cardNum), pr: false },
   "カードラッシュ": {
     url: (cardNum, cardName, cardRarity, cardrushUrl) => cardrushUrl || cardrushSearchUrl(cardName),
     pr: false,

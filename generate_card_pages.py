@@ -104,7 +104,7 @@ def _meta_description(card: dict, current: dict) -> str:
     parts.append("の相場・価格情報。")
     if current["pooled_avg"] is not None:
         parts.append(f"現在の相場は{current['pooled_avg']}円です。")
-    parts.append("駿河屋・カードラボ・竜のしっぽ・わいTV・カードラッシュの価格をまとめて比較できます。")
+    parts.append("駿河屋・カードラボ・竜のしっぽ・わいTV・カードラッシュ・まんぞく屋の価格をまとめて比較できます。")
     return "".join(parts)
 
 

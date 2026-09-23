@@ -593,7 +593,7 @@ function addCard(card) {
     markDirty();
     return;
   }
-  if (copiesInGroup(card) >= MAX_COPIES) {
+  if (!isUnlimitedCopyCard(card) && copiesInGroup(card) >= MAX_COPIES) {
     alert(`同じカード(レアリティ違いを含む)は最大${MAX_COPIES}枚までです。`);
     return;
   }
@@ -607,10 +607,15 @@ function addCard(card) {
 
 // 「同じカード」判定キー。card_text_idは印刷違い(レアリティ・収録パック違いの
 // 再録)でも共通の値になっているため、これで同一カードとして4枚制限をまとめて数えられる。
-// 注意: 実際のポケモンカードルールでは基本エネルギーは4枚制限の対象外(無制限)だが、
-// このデッキ作成ツールはまだその例外を実装していない(既知の制限)。
 function copyGroupKey(card) {
   return card.card_text_id;
+}
+
+// 実際のポケモンカードルールでは「基本エネルギー」(category === "基本エネルギー")は
+// 4枚制限の対象外(同名カードを何枚でもデッキに入れられる)。特殊エネルギーや
+// それ以外のカード種別は通常どおり4枚制限の対象。
+function isUnlimitedCopyCard(card) {
+  return card && card.category === "基本エネルギー";
 }
 
 // 現在デッキに入っている、同じカード(レアリティ違い含む)の合計枚数。
