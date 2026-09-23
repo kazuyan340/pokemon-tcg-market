@@ -79,3 +79,35 @@ def download_print_images(prints: list[dict], out_dir: Path, delay: float = REQU
                 p["image_url"] = None
                 continue
         p["image_url"] = filename
+
+
+KYUURA_HEADERS = {
+    "User-Agent": HEADERS["User-Agent"],
+    "Referer": "https://www.cardrush-pokemon.jp/phone/product-group/532",
+}
+
+
+def download_kyuura_images(items: list[dict], out_dir: Path, delay: float = REQUEST_DELAY_SEC) -> None:
+    """kyuura_cards (実店舗 cardrush-pokemon.jp の旧裏カテゴリ)の image_source を
+    ダウンロードする。cardrush.mediaとは別ドメインのため、Refererもそちらに合わせる。
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    for item in items:
+        url = item.get("image_source")
+        if not url:
+            item["image_url"] = None
+            continue
+        filename = f"kyuura_{item['id']}{_extension(url)}"
+        dest = out_dir / filename
+        if not dest.exists():
+            try:
+                resp = requests.get(url, headers=KYUURA_HEADERS, timeout=REQUEST_TIMEOUT)
+                resp.raise_for_status()
+                dest.write_bytes(resp.content)
+                time.sleep(delay)
+            except requests.RequestException as exc:
+                logger.warning("画像取得に失敗: %s (%s)", url, exc)
+                item["image_url"] = None
+                continue
+        item["image_url"] = filename

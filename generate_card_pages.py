@@ -25,11 +25,12 @@ NAV_LINKS = [
     ("ranking.html", "💰 相場ランキング"),
     ("compare.html", "★ お気に入り"),
     ("deck.html", "🃏 デッキ作成"),
+    ("kyuura.html", "📜 旧裏"),
 ]
 
 STATIC_PAGES = [
     "index.html", "trends.html", "movers-up.html", "movers-down.html",
-    "ranking.html", "compare.html", "deck.html",
+    "ranking.html", "compare.html", "deck.html", "kyuura.html",
     "about.html", "privacy.html",
 ]
 

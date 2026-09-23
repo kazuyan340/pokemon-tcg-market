@@ -87,14 +87,23 @@ jobs:
       - name: Fetch prices from Card Shop WaiTV
         run: python scraper_prices_waitv.py
 
+      - name: Fetch old-back ("旧裏") category stock/prices from CardRush Pokemon
+        run: python scraper_kyuura.py
+
       - name: Download card images (self-hosted, cardrush.media hotlink-blocks)
         run: python run_download_images.py
+
+      - name: Download old-back card images
+        run: python run_download_kyuura_images.py
 
       - name: Build unresolved shop-listing report
         run: python build_unresolved_report.py
 
       - name: Export static JSON for the site
         run: python export_static.py
+
+      - name: Export old-back card JSON
+        run: python export_kyuura.py
 
       - name: Generate per-card SEO pages
         run: python generate_card_pages.py
@@ -108,7 +117,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add site/data/cards.json site/data/prices/ site/data/prices_latest.json site/data/trends.json site/data/movers.json site/data/meta.json site/data/unresolved-shop-items.json site/card/ site/card-images/ site/sitemap.xml
+          git add site/data/cards.json site/data/prices/ site/data/prices_latest.json site/data/trends.json site/data/movers.json site/data/meta.json site/data/unresolved-shop-items.json site/data/kyuura.json site/card/ site/card-images/ site/sitemap.xml
           git diff --cached --quiet || git commit -m "chore: daily card/price update"
           git fetch origin main
           git merge -X ours origin/main --no-edit

@@ -1960,3 +1960,44 @@ body.modal-open {
     background: #1f2023;
   }
 }
+
+/* 旧裏カードページ (kyuura.html) 専用スタイル。既存の.card-tile/.price-site-tableを
+   ベースに、状態ランク表とストック切り替えチェックボックス分だけ追加する。 */
+.kyuura-intro {
+  max-width: 720px;
+  margin: 0 auto 16px;
+}
+
+.kyuura-stock-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.kyuura-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kyuura-condition-table {
+  width: 100%;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.kyuura-condition-table td,
+.kyuura-condition-table th {
+  padding: 2px 4px;
+}
+
+tr.kyuura-sold-out td {
+  color: var(--muted, #888);
+  text-decoration: line-through;
+}
+
+tr.kyuura-in-stock td {
+  font-weight: 600;
+}

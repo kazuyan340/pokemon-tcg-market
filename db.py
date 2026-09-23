@@ -100,6 +100,28 @@ CREATE TABLE IF NOT EXISTS price_history (
 CREATE INDEX IF NOT EXISTS idx_cards_name ON cards(name);
 CREATE INDEX IF NOT EXISTS idx_prints_card ON card_prints(card_id);
 CREATE INDEX IF NOT EXISTS idx_prints_card_num ON card_prints(card_num);
+
+-- 旧裏(1996-99年頃の初期シリーズ)専用テーブル。cardrush.media の一覧APIには
+-- 旧裏カードのデータが一切無く、実店舗 cardrush-pokemon.jp の実在庫カテゴリ
+-- (product-group/532)から直接取得する以外に手段が無い。公式のムーブ/特性テキストも
+-- 存在しないため、無理に cards/card_prints に合わせず単純な専用テーブルで持つ。
+-- 1行 = 1商品(状態ランク別・バリエーション別に別商品として出品されている)。
+CREATE TABLE IF NOT EXISTS kyuura_cards (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    level TEXT,
+    variant TEXT,
+    rarity_mark TEXT,
+    condition TEXT,
+    price INTEGER,
+    in_stock INTEGER,
+    image_source TEXT,
+    image_url TEXT,
+    product_url TEXT,
+    fetched_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_kyuura_name ON kyuura_cards(name);
 CREATE INDEX IF NOT EXISTS idx_price_print ON price_history(print_id);
 """
 
@@ -190,6 +212,43 @@ def upsert_prints(conn: sqlite3.Connection, prints: list[dict]) -> dict:
 
     conn.commit()
     return {"new": new_count, "updated": updated_count, "total": len(prints)}
+
+
+KYUURA_COLUMNS = [
+    "id", "name", "level", "variant", "rarity_mark", "condition", "price",
+    "in_stock", "image_source", "image_url", "product_url",
+]
+
+
+def upsert_kyuura_cards(conn: sqlite3.Connection, items: list[dict]) -> dict:
+    new_count = 0
+    updated_count = 0
+    now = datetime.now(timezone.utc).isoformat()
+
+    placeholders = ", ".join(f":{c}" for c in KYUURA_COLUMNS)
+    assignments = ", ".join(f"{c}=excluded.{c}" for c in KYUURA_COLUMNS if c != "id")
+
+    sql = f"""
+        INSERT INTO kyuura_cards ({", ".join(KYUURA_COLUMNS)}, fetched_at)
+        VALUES ({placeholders}, :fetched_at)
+        ON CONFLICT(id) DO UPDATE SET {assignments}, fetched_at=excluded.fetched_at
+    """
+
+    for item in items:
+        existing = conn.execute("SELECT id FROM kyuura_cards WHERE id = ?", (item["id"],)).fetchone()
+        row = {**item, "fetched_at": now}
+        conn.execute(sql, row)
+        if existing is None:
+            new_count += 1
+        else:
+            updated_count += 1
+
+    conn.commit()
+    return {"new": new_count, "updated": updated_count, "total": len(items)}
+
+
+def count_kyuura_cards(conn: sqlite3.Connection) -> int:
+    return conn.execute("SELECT COUNT(*) FROM kyuura_cards").fetchone()[0]
 
 
 def get_distinct_values(conn: sqlite3.Connection, column: str, table: str = "cards") -> list[str]:

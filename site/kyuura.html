@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ポケモンカードゲーム「旧裏」(1996-99年頃の初期シリーズ)カードの在庫・価格をカードラッシュポケモンの実店舗在庫からまとめてチェックできるページ。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ポケモンカードゲーム カード図鑑">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:url" content="https://kazuyan340.github.io/pokemon-tcg-market/kyuura.html">
+<meta property="og:title" content="旧裏カード | ポケモンカードゲーム カード図鑑">
+<meta property="og:description" content="ポケモンカードゲーム「旧裏」(1996-99年頃の初期シリーズ)カードの在庫・価格をカードラッシュポケモンの実店舗在庫からまとめてチェックできるページ。">
+<meta property="og:image" content="https://kazuyan340.github.io/pokemon-tcg-market/ogp.png?v=1">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="旧裏カード | ポケモンカードゲーム カード図鑑">
+<meta name="twitter:description" content="ポケモンカードゲーム「旧裏」(1996-99年頃の初期シリーズ)カードの在庫・価格をカードラッシュポケモンの実店舗在庫からまとめてチェックできるページ。">
+<meta name="twitter:image" content="https://kazuyan340.github.io/pokemon-tcg-market/ogp.png?v=1">
+<title>旧裏カード | ポケモンカードゲーム カード図鑑</title>
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<header class="toolbar">
+  <div class="title-row">
+    <div class="title-block">
+      <h1>📜 旧裏カード</h1>
+      <p id="last-updated" class="last-updated"></p>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="reset-btn nav-btn">📋 一覧</a>
+      <a href="trends.html" class="reset-btn nav-btn">📊 価格の動きを見る</a>
+      <a href="movers-up.html" class="reset-btn nav-btn">🔺 値上がりを見る</a>
+      <a href="movers-down.html" class="reset-btn nav-btn">🔻 値下がりを見る</a>
+      <a href="ranking.html" class="reset-btn nav-btn">💰 相場ランキング</a>
+      <a href="compare.html" class="reset-btn nav-btn">★ お気に入り</a>
+      <a href="deck.html" class="reset-btn nav-btn">🃏 デッキ作成</a>
+      <a href="kyuura.html" class="reset-btn nav-btn current-page">📜 旧裏</a>
+    </div>
+    <button type="button" class="nav-menu-toggle" aria-label="メニュー" aria-expanded="false">☰</button>
+  </div>
+  <div class="filters">
+    <div class="filter-item">
+      <label for="keyword">キーワード</label>
+      <input type="text" id="keyword" placeholder="カード名で検索">
+    </div>
+    <label class="kyuura-stock-toggle">
+      <input type="checkbox" id="stock-only" checked>
+      在庫ありのみ表示
+    </label>
+  </div>
+  <p id="result-count" class="result-count"></p>
+</header>
+
+<main class="static-page">
+  <section class="static-section kyuura-intro">
+    <p>1996〜99年頃発売の初期シリーズ(通称「旧裏」)カードを、カードラッシュポケモンの実店舗在庫からまとめて掲載しています。通常のカード図鑑(cardrush.mediaベース)とは別のデータソースのため、技・特性テキストなどの詳細情報はありません。状態ランク(A-/B/C/D等)ごとに複数出品されている場合、カードごとにまとめて表示しています。</p>
+  </section>
+</main>
+
+<main id="card-grid" class="card-grid kyuura-grid"></main>
+
+<footer class="site-disclaimer">
+  <p>価格・在庫情報はカードラッシュポケモン(cardrush-pokemon.jp)調べです。実際の価格・在庫状況と差異が生じる場合があります。</p>
+  <p><a href="about.html">運営者情報</a>　<a href="privacy.html">プライバシーポリシー・お問い合わせ</a></p>
+</footer>
+
+<script src="common.js?v=1"></script>
+<script src="kyuura.js?v=1"></script>
+</body>
+</html>
