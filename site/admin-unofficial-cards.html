@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>非公式カード一覧(管理用)</title>
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<header class="toolbar">
+  <div class="title-row">
+    <div class="title-block">
+      <h1>🔒 非公式カード一覧(管理用)</h1>
+      <p id="last-updated" class="last-updated"></p>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="reset-btn nav-btn">📋 一覧に戻る</a>
+    </div>
+  </div>
+  <p id="result-count" class="result-count"></p>
+</header>
+
+<h2 class="section-heading">💰 アフィリエイト管理画面</h2>
+<div class="affiliate-links">
+  <a href="https://affiliate.suruga-ya.jp/modules/af/index.php?op=af_login" target="_blank" rel="noopener" class="reset-btn">駿河屋</a>
+  <a href="https://affiliate.amazon.co.jp/" target="_blank" rel="noopener" class="reset-btn">Amazon</a>
+  <a href="https://affiliate.rakuten.co.jp/" target="_blank" rel="noopener" class="reset-btn">楽天</a>
+  <a href="https://jp.mercari.com/ambassador/dashboard" target="_blank" rel="noopener" class="reset-btn">メルカリ</a>
+</div>
+
+<h2 class="section-heading">🎴 ショップから逆輸入したカード</h2>
+<main id="card-grid" class="card-grid"></main>
+
+<section class="unresolved-section">
+  <h2>🕵️ ショップにはあるが自分のサイトに反映できていないカード</h2>
+
+  <div class="unresolved-export-bar">
+    <span id="manual-resolution-count" class="result-count">0件選択済み</span>
+    <button type="button" id="export-manual-resolutions" class="reset-btn">💾 選択をエクスポート</button>
+    <button type="button" id="clear-manual-resolutions" class="reset-btn">🗑️ 選択をクリア</button>
+  </div>
+
+  <h3>① 候補は絞れたが1枚に特定できないカード<span id="ambiguous-count" class="result-count"></span></h3>
+  <div id="ambiguous-list"></div>
+
+  <h3>② 自分のカードDBに全く見当たらないカード<span id="missing-count" class="result-count"></span></h3>
+  <div id="missing-list"></div>
+</section>
+
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal-card">
+    <button id="modal-close" class="modal-close">&times;</button>
+    <div class="modal-body">
+      <div class="modal-image">
+        <img id="modal-image" alt="">
+      </div>
+      <div class="modal-info" id="modal-info"></div>
+    </div>
+    <div class="modal-price-section">
+      <h3>相場推移</h3>
+      <div id="modal-price-stats" class="price-stats"></div>
+      <div class="price-detail-row">
+        <div id="modal-price-table" class="price-table-col"></div>
+        <div class="price-chart-col">
+          <div class="period-tabs" id="period-tabs">
+            <button type="button" class="period-tab" data-days="0">全期間</button>
+            <button type="button" class="period-tab active" data-days="7">7日</button>
+            <button type="button" class="period-tab" data-days="30">30日</button>
+          </div>
+          <canvas id="price-chart" width="420" height="260"></canvas>
+        </div>
+      </div>
+      <p id="price-empty" class="price-empty hidden">価格データがありません。</p>
+    </div>
+  </div>
+</div>
+
+<script src="common.js?v=1"></script>
+<script src="admin-unofficial-cards.js?v=1"></script>
+</body>
+</html>

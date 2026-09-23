@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ポケモンカードゲームの全カード情報と、駿河屋・カードラボ・竜のしっぽ・わいTV・カードラッシュの価格相場をまとめて検索・閲覧できるカード図鑑サイト。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ポケモンカードゲーム カード図鑑">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:url" content="https://kazuyan340.github.io/pokemon-tcg-market/">
+<meta property="og:title" content="ポケモンカードゲーム カード図鑑">
+<meta property="og:description" content="ポケモンカードゲームの全カード情報と、駿河屋・カードラボ・竜のしっぽ・わいTV・カードラッシュの価格相場をまとめて検索・閲覧できるカード図鑑サイト。">
+<meta property="og:image" content="https://kazuyan340.github.io/pokemon-tcg-market/ogp.png?v=1">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ポケモンカードゲーム カード図鑑">
+<meta name="twitter:description" content="ポケモンカードゲームの全カード情報と、駿河屋・カードラボ・竜のしっぽ・わいTV・カードラッシュの価格相場をまとめて検索・閲覧できるカード図鑑サイト。">
+<meta name="twitter:image" content="https://kazuyan340.github.io/pokemon-tcg-market/ogp.png?v=1">
+<title>ポケモンカードゲーム カード図鑑</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "ポケモンカードゲーム カード図鑑",
+  "url": "https://kazuyan340.github.io/pokemon-tcg-market/",
+  "description": "ポケモンカードゲームの全カード情報と、駿河屋・カードラボ・竜のしっぽ・わいTV・カードラッシュの価格相場をまとめて検索・閲覧できるカード図鑑サイト。"
+}
+</script>
+</head>
+<body>
+<header class="toolbar">
+  <div class="title-row">
+    <div class="title-block">
+      <h1>ポケモンカードゲーム カード図鑑</h1>
+      <p id="last-updated" class="last-updated"></p>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="reset-btn nav-btn current-page">📋 一覧</a>
+      <a href="trends.html" class="reset-btn nav-btn">📊 価格の動きを見る</a>
+      <a href="movers-up.html" class="reset-btn nav-btn">🔺 値上がりを見る</a>
+      <a href="movers-down.html" class="reset-btn nav-btn">🔻 値下がりを見る</a>
+      <a href="ranking.html" class="reset-btn nav-btn">💰 相場ランキング</a>
+      <a href="compare.html" class="reset-btn nav-btn">★ お気に入り</a>
+      <a href="deck.html" class="reset-btn nav-btn">🃏 デッキ作成</a>
+    </div>
+    <button type="button" class="nav-menu-toggle" aria-label="メニュー" aria-expanded="false">☰</button>
+  </div>
+  <div class="filters">
+    <div class="filter-item">
+      <label for="keyword">キーワード</label>
+      <input type="text" id="keyword" placeholder="カード名・能力テキストで検索">
+    </div>
+    <button type="button" id="toggle-filters" class="filters-chevron-btn" title="絞り込み条件を開閉">▾</button>
+  </div>
+  <div class="filters filters-extra" id="filters-panel">
+    <details class="filter-group" id="filter-category-group">
+      <summary>種類<span class="count-badge hidden"></span></summary>
+      <div class="checkbox-list" id="filter-category-list"></div>
+    </details>
+    <details class="filter-group" id="filter-element-group">
+      <summary>タイプ<span class="count-badge hidden"></span></summary>
+      <div class="checkbox-list" id="filter-element-list"></div>
+    </details>
+    <details class="filter-group" id="filter-rarity-group">
+      <summary>レアリティ<span class="count-badge hidden"></span></summary>
+      <div class="checkbox-list" id="filter-rarity-list"></div>
+    </details>
+    <details class="filter-group" id="filter-evo-group">
+      <summary>進化段階<span class="count-badge hidden"></span></summary>
+      <div class="checkbox-list" id="filter-evo-list"></div>
+    </details>
+    <details class="filter-group" id="filter-pack-group">
+      <summary>収録パック<span class="count-badge hidden"></span></summary>
+      <div class="checkbox-list" id="filter-pack-list"></div>
+    </details>
+    <button type="button" id="reset-filters" class="filter-reset-btn">↺ 条件をリセット</button>
+  </div>
+  <div class="sort-row">
+    <label for="sort-select">並び替え</label>
+    <select id="sort-select">
+      <option value="popularity_desc">人気順</option>
+      <option value="id_asc">ID順</option>
+      <option value="id_desc">ID順(降順)</option>
+      <option value="hp_desc">HP順</option>
+      <option value="hp_asc">HP順(昇順)</option>
+    </select>
+  </div>
+  <p id="result-count" class="result-count"></p>
+</header>
+
+<main id="card-grid" class="card-grid"></main>
+
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal-card">
+    <button id="modal-favorite" class="favorite-star modal-favorite-star" title="お気に入り(価格チェック対象)に登録/解除">☆</button>
+    <button id="modal-close" class="modal-close">&times;</button>
+    <div class="modal-body">
+      <div class="modal-image">
+        <img id="modal-image" alt="">
+      </div>
+      <div class="modal-info" id="modal-info"></div>
+    </div>
+    <div class="modal-price-section">
+      <h3>相場推移</h3>
+      <div id="modal-price-stats" class="price-stats"></div>
+      <div class="price-detail-row">
+        <div id="modal-price-table" class="price-table-col"></div>
+        <div class="price-chart-col">
+          <div class="period-tabs" id="period-tabs">
+            <button type="button" class="period-tab" data-days="0">全期間</button>
+            <button type="button" class="period-tab active" data-days="7">7日</button>
+            <button type="button" class="period-tab" data-days="30">30日</button>
+          </div>
+          <canvas id="price-chart" width="420" height="260"></canvas>
+        </div>
+      </div>
+      <p id="price-empty" class="price-empty hidden">価格データがありません。</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-disclaimer">
+  <p>価格情報は当サイト調べです。実際の価格・在庫状況と差異が生じる場合があります。掲載しているカード画像はcardrush.media提供の画像を参照しています。</p>
+  <p><a href="about.html">運営者情報</a>　<a href="privacy.html">プライバシーポリシー・お問い合わせ</a></p>
+</footer>
+
+<script src="common.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

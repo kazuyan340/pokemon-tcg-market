@@ -1,0 +1,115 @@
+name: Daily card and price update
+
+on:
+  schedule:
+    - cron: "37 17 * * *"  # 毎日 UTC17:37 = JST 2:37 (conan/onepieceと時間をずらして負荷分散)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  # 駿河屋はGitHub Actionsのクラウド(データセンター)IPを403でブロックするため、
+  # このジョブだけ通常回線を持つセルフホストランナー(自分のPC)で実行する。
+  fetch_surugaya:
+    runs-on: [self-hosted, self-hosted-pokemon]
+    timeout-minutes: 90
+    env:
+      PYTHON: C:\Program Files\Python312\python.exe
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: '& "${{ env.PYTHON }}" -m pip install -r requirements.txt'
+
+      - name: Restore price/card database (accumulates across daily runs)
+        id: release_restore
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $gh = "C:\Program Files\GitHub CLI\gh.exe"
+          if (-not (Test-Path $gh)) { $gh = "gh" }
+          & $gh release download db-store --repo ${{ github.repository }} --pattern pokemon_tcg.db --dir data --clobber
+          if ($LASTEXITCODE -eq 0) {
+            echo "found=true" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "found=false" >> $env:GITHUB_OUTPUT
+            Write-Host "db-store release asset not found yet (expected on first run)."
+          }
+          exit 0
+        shell: powershell
+
+      - name: Sync card list (diff update, full historical catalog)
+        run: '& "${{ env.PYTHON }}" scraper_cards.py'
+
+      - name: Fetch card print details (pack/rarity/cardrush price) for cards missing them
+        run: '& "${{ env.PYTHON }}" scraper_card_details.py 1500'
+
+      - name: Fetch prices from Suruga-ya
+        run: '& "${{ env.PYTHON }}" scraper_prices_surugaya.py'
+
+      - name: Hand off database to the next job
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-tcg-db
+          path: |
+            data/pokemon_tcg.db
+            site/data/unresolved_raw/駿河屋.json
+          retention-days: 1
+
+  fetch_others_and_publish:
+    needs: fetch_surugaya
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Receive database from the Suruga-ya job
+        uses: actions/download-artifact@v4
+        with:
+          name: pokemon-tcg-db
+          path: .
+
+      - name: Fetch prices from Card Labo
+        run: python scraper_prices_cardlabo.py
+
+      - name: Fetch prices from Ryuu no Shippo
+        run: python scraper_prices_ryuunoshippo.py
+
+      - name: Fetch prices from Card Shop WaiTV
+        run: python scraper_prices_waitv.py
+
+      - name: Download card images (self-hosted, cardrush.media hotlink-blocks)
+        run: python run_download_images.py
+
+      - name: Build unresolved shop-listing report
+        run: python build_unresolved_report.py
+
+      - name: Export static JSON for the site
+        run: python export_static.py
+
+      - name: Generate per-card SEO pages
+        run: python generate_card_pages.py
+
+      - name: Save price/card database for the next run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload db-store data/pokemon_tcg.db --repo ${{ github.repository }} --clobber
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/data/cards.json site/data/prices/ site/data/prices_latest.json site/data/trends.json site/data/movers.json site/data/meta.json site/data/unresolved-shop-items.json site/card/ site/card-images/ site/sitemap.xml
+          git diff --cached --quiet || git commit -m "chore: daily card/price update"
+          git fetch origin main
+          git merge -X ours origin/main --no-edit
+          git push

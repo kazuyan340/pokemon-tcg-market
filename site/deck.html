@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ポケモンカードゲームのデッキ(パートナー1枚・事件1枚・メインデッキ40枚)をカードを選びながら組み立て、現在の相場での合計金額をリアルタイムに確認できるツール。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ポケモンカードゲーム カード図鑑">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:url" content="https://kazuyan340.github.io/pokemon-tcg-market/deck.html">
+<meta property="og:title" content="デッキ作成 | ポケモンカードゲーム カード図鑑">
+<meta property="og:description" content="ポケモンカードゲームのデッキ(パートナー1枚・事件1枚・メインデッキ40枚)をカードを選びながら組み立て、現在の相場での合計金額をリアルタイムに確認できるツール。">
+<meta property="og:image" content="https://kazuyan340.github.io/pokemon-tcg-market/ogp.png?v=1">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="デッキ作成 | ポケモンカードゲーム カード図鑑">
+<meta name="twitter:description" content="ポケモンカードゲームのデッキ(パートナー1枚・事件1枚・メインデッキ40枚)をカードを選びながら組み立て、現在の相場での合計金額をリアルタイムに確認できるツール。">
+<meta name="twitter:image" content="https://kazuyan340.github.io/pokemon-tcg-market/ogp.png?v=1">
+<title>デッキ作成 | ポケモンカードゲーム カード図鑑</title>
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<header class="toolbar">
+  <div class="title-row">
+    <div class="title-block">
+      <h1>🃏 デッキ作成</h1>
+      <p id="last-updated" class="last-updated"></p>
+    </div>
+    <div class="nav-links">
+      <button type="button" id="back-to-deck-list-nav" class="reset-btn nav-btn hidden">📋 デッキ一覧に戻る</button>
+      <a href="index.html" class="reset-btn nav-btn">📋 一覧</a>
+      <a href="trends.html" class="reset-btn nav-btn">📊 価格の動きを見る</a>
+      <a href="movers-up.html" class="reset-btn nav-btn">🔺 値上がりを見る</a>
+      <a href="movers-down.html" class="reset-btn nav-btn">🔻 値下がりを見る</a>
+      <a href="ranking.html" class="reset-btn nav-btn">💰 相場ランキング</a>
+      <a href="compare.html" class="reset-btn nav-btn">★ お気に入り</a>
+      <a href="deck.html" class="reset-btn nav-btn current-page">🃏 デッキ作成</a>
+    </div>
+    <button type="button" class="nav-menu-toggle" aria-label="メニュー" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<!-- デッキ選択画面: 保存済みデッキを選ぶ・新規作成する画面。 -->
+<div id="view-deck-select" class="deck-select-view">
+  <h2>デッキ一覧</h2>
+  <div id="deck-list-bar" class="deck-list-bar"></div>
+</div>
+
+<!-- デッキ参照画面: 一覧からクリックした直後に開く、閲覧専用の画面。
+     カードをクリックすると価格の詳細モーダルが開く(編集画面のような追加/削除は無い)。 -->
+<div id="view-deck-view" class="hidden">
+  <div class="deck-edit-header">
+    <span id="deck-view-title" class="deck-edit-title"></span>
+    <button type="button" id="edit-deck-btn" class="reset-btn">✏️ 編集する</button>
+  </div>
+
+  <div class="deck-summary">
+    <div class="deck-count" id="deck-view-count">メインデッキ 0/40枚</div>
+    <div class="deck-total" id="deck-view-total">合計 0円</div>
+  </div>
+
+  <div class="deck-top-slots">
+    <div class="deck-slot-section">
+      <h3>パートナー</h3>
+      <div id="deck-view-partner" class="deck-slot-box empty"></div>
+    </div>
+    <div class="deck-slot-section">
+      <h3>事件</h3>
+      <div id="deck-view-case" class="deck-slot-box empty"></div>
+    </div>
+  </div>
+
+  <h3>メインデッキ(キャラ・イベント) <span class="deck-hint">カードをクリックすると相場の詳細が見られます</span></h3>
+  <div id="deck-view-main-grid" class="deck-main-grid"></div>
+</div>
+
+<!-- デッキ調整画面: 選んだデッキの中身を編集する画面。 -->
+<div id="view-deck-edit" class="hidden">
+  <div class="deck-edit-header">
+    <span id="deck-edit-title" class="deck-edit-title"></span>
+    <button type="button" id="rename-deck-btn" class="reset-btn" title="デッキ名を変更">✏️ 名前を変更</button>
+    <button type="button" id="save-deck-btn" class="reset-btn save-deck-btn" title="編集内容を保存">💾 保存</button>
+    <span id="unsaved-indicator" class="unsaved-indicator hidden">未保存の変更があります</span>
+  </div>
+
+  <div class="deck-layout">
+  <!-- 左側: デッキ全体(パートナー・事件・メインデッキ40枚)を常に表示。
+       埋まっている枠はカード画像入りで表示され、何がデッキに入っているか一目で分かる。 -->
+  <main class="deck-main">
+    <div class="deck-summary">
+      <div class="deck-count" id="deck-count">メインデッキ 0/40枚</div>
+      <div class="deck-total" id="deck-total">合計 0円</div>
+      <label class="deck-total-toggle"><input type="checkbox" id="include-partner-case" checked> パートナー/事件を含める</label>
+      <button type="button" id="clear-deck" class="reset-btn">デッキをクリア</button>
+      <button type="button" id="share-deck" class="reset-btn">🔗 URLで共有</button>
+      <button type="button" id="max-rarity-deck" class="reset-btn" title="同じカードの中で相場が一番高いレアリティに全部入れ替える">⬆️ 最高レアリティにする</button>
+      <button type="button" id="min-rarity-deck" class="reset-btn" title="同じカードの中で相場が一番安いレアリティに全部入れ替える">⬇️ 最低レアリティにする</button>
+    </div>
+
+    <div class="deck-top-slots">
+      <div class="deck-slot-section">
+        <h3>パートナー</h3>
+        <div id="deck-partner" class="deck-slot-box empty"></div>
+      </div>
+      <div class="deck-slot-section">
+        <h3>事件</h3>
+        <div id="deck-case" class="deck-slot-box empty"></div>
+      </div>
+    </div>
+
+    <h3>メインデッキ(キャラ・イベント) <span class="deck-hint">枠をクリックすると右の一覧が絞り込まれます・埋まっている枠はクリックで1枚減らせます</span></h3>
+    <div class="sort-row">
+      <label for="deck-sort-select">並び順</label>
+      <select id="deck-sort-select">
+        <option value="name_asc">名前順</option>
+        <option value="name_desc">名前順(降順)</option>
+        <option value="card_num_asc">番号順</option>
+        <option value="card_num_desc">番号順(降順)</option>
+        <option value="level_asc">レベル順</option>
+        <option value="level_desc">レベル順(降順)</option>
+        <option value="ap_asc">AP順</option>
+        <option value="ap_desc">AP順(降順)</option>
+        <option value="lp_asc">LP順</option>
+        <option value="lp_desc">LP順(降順)</option>
+      </select>
+    </div>
+    <div id="deck-main-grid" class="deck-main-grid"></div>
+  </main>
+
+  <!-- 右側: カードの検索・選択パネル。クリックしたカードはそのままデッキに追加される。 -->
+  <aside class="deck-search-panel">
+    <div class="deck-type-toggles" id="filter-type-list"></div>
+    <div class="filter-item">
+      <input type="text" id="keyword" placeholder="カード名で検索">
+    </div>
+    <div class="filters">
+      <details class="filter-group" id="filter-color-group">
+        <summary>色<span class="count-badge hidden"></span></summary>
+        <div class="checkbox-list" id="filter-color-list"></div>
+      </details>
+      <details class="filter-group" id="filter-rarity-group">
+        <summary>レアリティ<span class="count-badge hidden"></span></summary>
+        <div class="checkbox-list" id="filter-rarity-list"></div>
+      </details>
+      <details class="filter-group" id="filter-level-group">
+        <summary>レベル<span class="count-badge hidden"></span></summary>
+        <div class="checkbox-list" id="filter-level-list"></div>
+      </details>
+      <details class="filter-group" id="filter-pack-group">
+        <summary>収録パック<span class="count-badge hidden"></span></summary>
+        <div class="checkbox-list" id="filter-pack-list"></div>
+      </details>
+    </div>
+    <div class="sort-row">
+      <label for="sort-select">並び替え</label>
+      <select id="sort-select">
+        <option value="id_asc">ID順</option>
+        <option value="id_desc">ID順(降順)</option>
+        <option value="level_asc">レベル順</option>
+        <option value="level_desc">レベル順(降順)</option>
+        <option value="ap_asc">AP順</option>
+        <option value="ap_desc">AP順(降順)</option>
+        <option value="lp_asc">LP順</option>
+        <option value="lp_desc">LP順(降順)</option>
+      </select>
+    </div>
+    <p id="result-count" class="result-count"></p>
+    <p class="deck-hint">カードをクリックでデッキに追加</p>
+
+    <div id="card-grid" class="card-grid deck-search-grid"></div>
+  </aside>
+  </div>
+</div>
+
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal-card">
+    <button id="modal-favorite" class="favorite-star modal-favorite-star" title="お気に入り(価格チェック対象)に登録/解除">☆</button>
+    <button id="modal-close" class="modal-close">&times;</button>
+    <div class="modal-body">
+      <div class="modal-image">
+        <img id="modal-image" alt="">
+      </div>
+      <div class="modal-info" id="modal-info"></div>
+    </div>
+    <div class="modal-price-section">
+      <h3>相場推移</h3>
+      <div id="modal-price-stats" class="price-stats"></div>
+      <div class="price-detail-row">
+        <div id="modal-price-table" class="price-table-col"></div>
+        <div class="price-chart-col">
+          <div class="period-tabs" id="period-tabs">
+            <button type="button" class="period-tab" data-days="0">全期間</button>
+            <button type="button" class="period-tab active" data-days="7">7日</button>
+            <button type="button" class="period-tab" data-days="30">30日</button>
+          </div>
+          <canvas id="price-chart" width="420" height="260"></canvas>
+        </div>
+      </div>
+      <p id="price-empty" class="price-empty hidden">価格データがありません。</p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-disclaimer">
+  <p>価格情報は当サイト調べです。実際の価格・在庫状況と差異が生じる場合があります。掲載しているカード画像はcardrush.media提供の画像を参照しています。</p>
+  <p>デッキ構築ルール(メインデッキ40枚ちょうど・同一カード3枚まで・パートナー/事件各1枚)は当サイト独自の目安です。最新の公式ルールは公式サイトをご確認ください。</p>
+  <p><a href="about.html">運営者情報</a>　<a href="privacy.html">プライバシーポリシー・お問い合わせ</a></p>
+</footer>
+
+<script src="common.js?v=1"></script>
+<script src="deck.js?v=1"></script>
+</body>
+</html>

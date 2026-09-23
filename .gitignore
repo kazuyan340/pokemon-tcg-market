@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+data/pokemon_tcg.db
+data/last_scrape_result.json
+data/last_detail_result.json
+site/data/unresolved_raw/
+.claude/
+actions-runner/
+
+# 開発中に作業ディレクトリに書き出した調査用の一時ファイル(コミット不要)。
+*.log
+probe*.json
+*_test.json
+*_test2.json
+distincts.json
+top_cards.json
+sample_*.json
+cardlabo_test.json
+surugaya_*.json

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin-unofficial-cards.html
+Disallow: /data/unofficial-cards.json
+
+Sitemap: https://kazuyan340.github.io/conan-tcg-market/sitemap.xml
