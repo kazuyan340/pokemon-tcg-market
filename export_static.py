@@ -27,6 +27,22 @@ MOVERS_LIMIT = 100
 
 OUTPUT_DIR = Path(__file__).parent / "site" / "data"
 
+# images.py / run_download_images.py はDBの image_url 列に "card-images/" ディレクトリを
+# 含まないファイル名だけ(例: "7844.webp")を保存する(ローカルファイル名の管理に徹し、
+# サイト上でのURLパスの組み立ては出力側の責務として分離するため)。static サイトの
+# 実ファイルは site/card-images/ 配下にあるため、JSON/HTMLへ書き出す際はここで
+# 相対パスを組み立てる(このprefixを付け忘れると画像が全て404になる既知の不具合の
+# 修正: 2026-09-24)。
+CARD_IMAGE_DIR = "card-images/"
+
+
+def _image_path(filename) -> str | None:
+    if not filename:
+        return None
+    if filename.startswith(CARD_IMAGE_DIR):
+        return filename
+    return f"{CARD_IMAGE_DIR}{filename}"
+
 # Amazonアソシエイト/楽天アフィリエイト/メルカリアンバサダーのID。
 # conan/onepieceで既に承認済みの同一IDをそのまま再利用する(site/common.js側にも同じ値)。
 AMAZON_ASSOCIATE_TAG = "conantcgmarke-22"
@@ -61,7 +77,10 @@ def export_cards(conn) -> list[dict]:
         ORDER BY c.popularity DESC, p.card_num
         """
     ).fetchall()
-    return [dict(r) for r in rows]
+    cards = [dict(r) for r in rows]
+    for card in cards:
+        card["image_url"] = _image_path(card["image_url"])
+    return cards
 
 
 def export_prices(conn) -> dict[str, list[dict]]:

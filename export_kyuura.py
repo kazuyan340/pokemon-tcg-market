@@ -9,6 +9,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import db
+from export_static import _image_path
 
 OUTPUT_PATH = Path(__file__).parent / "site" / "data" / "kyuura.json"
 
@@ -54,6 +55,7 @@ def export_kyuura(conn) -> list[dict]:
 
     result = []
     for group in groups.values():
+        group["image_url"] = _image_path(group["image_url"])
         group["listings"].sort(key=lambda l: _condition_sort_key(l["condition"]))
         in_stock_prices = [l["price"] for l in group["listings"] if l["in_stock"] and l["price"] is not None]
         group["min_price"] = min(in_stock_prices) if in_stock_prices else None

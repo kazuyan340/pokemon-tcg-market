@@ -113,6 +113,12 @@ def _card_page_html(card: dict, current: dict) -> str:
     description = _meta_description(card, current)
     page_url = f"{SITE_BASE_URL}/card/{card['id']}.html"
     image_url = card.get("image_url") or ""
+    # og:image/twitter:image はクローラーがこのページの<base>を解釈せず生の値を
+    # そのまま使うため、image_url(相対パス)をそのまま入れると
+    # {SITE_BASE_URL}/card/card-images/... という誤ったURLになってしまう。
+    # meta タグ用には絶対URLを別途組み立てる(<img src>側は<base href="../">前提の
+    # 相対パスのままでよい)。
+    image_url_abs = f"{SITE_BASE_URL}/{image_url}" if image_url else ""
 
     fields = [
         ("カード番号", card.get("card_num")),
@@ -154,7 +160,7 @@ def _card_page_html(card: dict, current: dict) -> str:
         "@context": "https://schema.org",
         "@type": "Product",
         "name": card["name"],
-        "image": image_url,
+        "image": image_url_abs,
         "description": description,
         "url": page_url,
     }
@@ -181,11 +187,11 @@ def _card_page_html(card: dict, current: dict) -> str:
 <meta property="og:url" content="{page_url}">
 <meta property="og:title" content="{_e(title)}">
 <meta property="og:description" content="{_e(description)}">
-<meta property="og:image" content="{_e(image_url)}">
+<meta property="og:image" content="{_e(image_url_abs)}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{_e(title)}">
 <meta name="twitter:description" content="{_e(description)}">
-<meta name="twitter:image" content="{_e(image_url)}">
+<meta name="twitter:image" content="{_e(image_url_abs)}">
 <title>{_e(title)}</title>
 <link rel="stylesheet" href="style.css?v={ASSET_VERSION}">
 <script type="application/ld+json">{_json_script(ld_json)}</script>

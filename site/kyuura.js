@@ -70,7 +70,9 @@ function createKyuuraTile(group) {
   tile.className = "card-tile kyuura-tile";
 
   const img = document.createElement("img");
-  img.src = group.image_url ? `card-images/${group.image_url}` : "";
+  // kyuura.json の image_url は export_kyuura.py 側で "card-images/" 付きの相対パスとして
+  // 書き出し済み(cards.jsonと同じ規約)なので、ここでプレフィックスを付け足さない。
+  img.src = group.image_url || "";
   img.alt = group.name;
   img.loading = "lazy";
 
